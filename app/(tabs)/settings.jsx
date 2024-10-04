@@ -84,7 +84,7 @@ const Settings = () => {
         {/* Options List */}
         <View className="px-4">
           <Pressable className="bg-white border border-gray-200 p-4 rounded-lg mb-4 flex flex-row justify-between items-center shadow"
-                      onPress={() => router.push("/solar-calculator")}
+                      onPress={() => router.push("/calculator")}
           >
             <View className="flex flex-row items-center">
               <Image source={("../../assets/icons/solar.png")} className="w-6 h-6 mr-3" />
