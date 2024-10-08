@@ -1,116 +1,140 @@
 import React, { useState } from 'react';
-import { SafeAreaView, Text, TextInput, View, Button, TouchableOpacity, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
+import { View, Text, Pressable, Alert, ScrollView } from 'react-native';
+import { saveSolarCalculation } from '../lib/appwrite'; // Import backend logic
+import FormField from '../components/FormField';
+import CustomButton from '../components/CustomButton';
+import Loader from '../components/Loader';
+import { useNavigation } from '@react-navigation/native'; // Import navigation hook
 
 const Calculator = () => {
-  const [address, setAddress] = useState('');
-  const [postalCode, setPostalCode] = useState('');
-  const [propertyType, setPropertyType] = useState('Residential'); // Default is Residential
-  const [electricityBill, setElectricityBill] = useState('');
-  const router = useRouter();
+  const [monthlyUsage, setMonthlyUsage] = useState('');
+  const [systemSize, setSystemSize] = useState('');
+  const [sunlightHours, setSunlightHours] = useState('');
+  const [costPerKwh, setCostPerKwh] = useState('');
+  const [propertyType, setPropertyType] = useState('Residential'); // Default value
+  const [loading, setLoading] = useState(false);
 
-  const handleCalculate = () => {
-    if (!address || !postalCode || !electricityBill) {
-      Alert.alert('Please fill out all fields.');
-      return;
-    }
+  const navigation = useNavigation(); // Use the hook to get the navigation object
 
-    // Perform Calculation
-    let netCost = 0;
-    let propertyValueIncrease = '4% or more';
-    switch (propertyType) {
-      case 'Residential':
-        netCost = 9600;
-        break;
-      case 'Commercial':
-        netCost = 12000;
-        break;
-      case 'Non-Profit':
-        netCost = 8500;
-        break;
-      default:
-        break;
-    }
-
-    const monthlyBill = parseFloat(electricityBill);
-    const netSavings = monthlyBill * 12 * 20 * 0.5; // 50% savings over 20 years
-    const paybackPeriod = netCost / (monthlyBill * 12 * 0.5);
-
-    // Navigate to results page with calculated data
-    router.push({
-      pathname: '/results',
-      params: {
-        address,
-        postalCode,
-        propertyType,
-        netCost,
-        netSavings,
-        paybackPeriod: paybackPeriod.toFixed(2),
-        propertyValueIncrease,
-      },
-    });
+  // Function to calculate installation cost based on property type
+  const calculateInstallationCost = (type, size) => {
+    let baseRate;
+    if (type === 'Residential') baseRate = 1000;
+    if (type === 'Commercial') baseRate = 1500;
+    if (type === 'Non-Profit') baseRate = 800;
+    return size * baseRate;
   };
 
-  // Custom radio button component with teal-500 color
-  const RadioButton = ({ label, value }) => (
-    <TouchableOpacity
-      onPress={() => setPropertyType(value)}
-      className="flex-row items-center mb-2"
-    >
-      <View
-        className={`w-4 h-4 rounded-full mr-2 border-2 ${
-          propertyType === value ? 'bg-teal-500' : 'bg-white'
-        } border-teal-500`}
-      />
-      <Text>{label}</Text>
-    </TouchableOpacity>
-  );
-
+  const handleSubmit = async () => {
+    if (!monthlyUsage || !systemSize || !sunlightHours || !costPerKwh) {
+      Alert.alert('Error', 'Please fill in all fields.');
+      return;
+    }
+  
+    setLoading(true);
+  
+    // Practical Assumptions
+    const costPerWatt = 3.00; // Cost per watt (in dollars)
+    const systemSizeInWatts = systemSize * 1000; // Convert kW to watts
+  
+    // Calculating installation cost
+    const installationCost = systemSizeInWatts * costPerWatt; // Installation cost in dollars
+    
+    // Calculate annual energy production
+    const annualEnergyProduction = systemSize * sunlightHours * 365; // Energy produced in kWh/year
+    
+    // Calculate annual savings based on the cost per kWh
+    let annualSavings = annualEnergyProduction * costPerKwh;
+  
+    // Ensure annualSavings is a valid number and within the correct range
+    if (isNaN(annualSavings) || annualSavings < 0) {
+      annualSavings = 0;
+    }
+  
+    // Ensure annualSavings doesn't exceed the upper limit of 1,000,000
+    if (annualSavings > 1000000) {
+      annualSavings = 1000000;
+    }
+  
+    // Calculate break-even period
+    let breakEvenPeriod = installationCost / annualSavings;
+  
+    // Ensure break-even period is at least 1
+    if (breakEvenPeriod < 1) {
+      breakEvenPeriod = 1;
+    }
+  
+    try {
+      const userId = 'currentUserId'; // Replace with dynamic user ID retrieval logic
+  
+      const newCalculation = await saveSolarCalculation(
+        userId, propertyType, systemSize, monthlyUsage, sunlightHours, costPerKwh, installationCost, annualSavings, breakEvenPeriod
+      );
+  
+      navigation.navigate('results', { newCalculation });
+    } catch (error) {
+      console.log('Error saving calculation:', error);
+      Alert.alert('Error', 'Failed to save calculation.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  
   return (
-    <SafeAreaView className="flex-1 p-6 bg-white">
-      <Text className="text-2xl font-bold mb-6">Solar Saving Calculator</Text>
+    <ScrollView contentContainerStyle={{ padding: 16 }}>
+      <Loader isLoading={loading} />
+      <Text className="text-2xl font-bold text-center mb-6">Solar Savings Calculator</Text>
 
-      <Text>Address:</Text>
-      <TextInput
-        value={address}
-        onChangeText={setAddress}
-        placeholder="Enter your address"
-        className="border rounded p-2 mb-4"
+      <FormField
+        title="Average Monthly Electricity Usage (kWh)"
+        placeholder="Enter electricity usage"
+        value={monthlyUsage}
+        handleChangeText={setMonthlyUsage}
+      />
+      <FormField
+        title="Solar System Size (kW)"
+        placeholder="Enter system size"
+        value={systemSize}
+        handleChangeText={setSystemSize}
+      />
+      <FormField
+        title="Sunlight Hours per Day"
+        placeholder="Enter sunlight hours"
+        value={sunlightHours}
+        handleChangeText={setSunlightHours}
+      />
+      <FormField
+        title="Cost per kWh"
+        placeholder="Enter your electricity cost per kWh"
+        value={costPerKwh}
+        handleChangeText={setCostPerKwh}
       />
 
-      <Text>Postal Code:</Text>
-      <TextInput
-        value={postalCode}
-        onChangeText={setPostalCode}
-        placeholder="Enter your postal code"
-        className="border rounded p-2 mb-4"
-      />
-
-      <Text>Property Type:</Text>
-      <View className="mb-4">
-        {/* Radio buttons with teal-500 color */}
-        <RadioButton label="Residential" value="Residential" />
-        <RadioButton label="Commercial" value="Commercial" />
-        <RadioButton label="Non-Profit" value="Non-Profit" />
+      {/* Property Type Radio Buttons */}
+      <View className="mt-4">
+        <Text className="text-base font-semibold text-gray-800">Property Type</Text>
+        <View className="flex flex-row justify-between mt-2">
+          {['Residential', 'Commercial', 'Non-Profit'].map((type) => (
+            <Pressable
+              key={type}
+              onPress={() => setPropertyType(type)}
+              className={`p-4 rounded-lg border text-center w-[30%] ${
+                propertyType === type ? 'bg-teal-500 text-white' : 'bg-white text-black border-gray-300'
+              }`}
+            >
+              <Text>{type}</Text>
+            </Pressable>
+          ))}
+        </View>
       </View>
 
-      <Text>Monthly Electricity Bill:</Text>
-      <TextInput
-        value={electricityBill}
-        onChangeText={setElectricityBill}
-        placeholder="Enter your monthly bill"
-        keyboardType="numeric"
-        className="border rounded p-2 mb-6"
+      <CustomButton
+        title="Calculate"
+        handlePress={handleSubmit}
+        containerStyles="w-full mt-6"
       />
-
-      {/* Calculate button with teal-500 background */}
-      <TouchableOpacity
-        onPress={handleCalculate}
-        className="bg-teal-500 py-3 rounded-md"
-      >
-        <Text className="text-white text-center text-lg">Calculate</Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+    </ScrollView>
   );
 };
 
