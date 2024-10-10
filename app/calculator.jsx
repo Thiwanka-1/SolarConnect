@@ -38,7 +38,7 @@ const Calculator = () => {
     const systemSizeInWatts = systemSize * 1000; // Convert kW to watts
   
     // Calculating installation cost
-    const installationCost = systemSizeInWatts * costPerWatt; // Installation cost in dollars
+    const installationCost = systemSizeInWatts * costPerWatt + calculateInstallationCost(propertyType, systemSize); // Installation cost in dollars
     
     // Calculate annual energy production
     const annualEnergyProduction = systemSize * sunlightHours * 365; // Energy produced in kWh/year
@@ -79,6 +79,61 @@ const Calculator = () => {
       setLoading(false);
     }
   };
+
+
+
+
+  // const handleSubmit = async () => {
+  //   if (!monthlyUsage || !systemSize || !sunlightHours || !costPerKwh) {
+  //     Alert.alert('Error', 'Please fill in all fields.');
+  //     return;
+  //   }
+  
+  //   setLoading(true);
+  
+  //   // Calculating installation cost using the reusable function
+  //   const installationCost = calculateInstallationCost(propertyType, systemSize); // Now using the calculateInstallationCost function
+  
+  //   // Calculate annual energy production
+  //   const annualEnergyProduction = systemSize * sunlightHours * 365; // Energy produced in kWh/year
+    
+  //   // Calculate annual savings based on the cost per kWh
+  //   let annualSavings = annualEnergyProduction * costPerKwh;
+  
+  //   // Ensure annualSavings is a valid number and within the correct range
+  //   if (isNaN(annualSavings) || annualSavings < 0) {
+  //     annualSavings = 0;
+  //   }
+  
+  //   // Ensure annualSavings doesn't exceed the upper limit of 1,000,000
+  //   if (annualSavings > 1000000) {
+  //     annualSavings = 1000000;
+  //   }
+  
+  //   // Calculate break-even period
+  //   let breakEvenPeriod = installationCost / annualSavings;
+  
+  //   // Ensure break-even period is at least 1
+  //   if (breakEvenPeriod < 1) {
+  //     breakEvenPeriod = 1;
+  //   }
+  
+  //   try {
+  //     const userId = 'currentUserId'; // Replace with dynamic user ID retrieval logic
+  
+  //     const newCalculation = await saveSolarCalculation(
+  //       userId, propertyType, systemSize, monthlyUsage, sunlightHours, costPerKwh, installationCost, annualSavings, breakEvenPeriod
+  //     );
+  
+  //     navigation.navigate('results', { newCalculation });
+  //   } catch (error) {
+  //     console.log('Error saving calculation:', error);
+  //     Alert.alert('Error', 'Failed to save calculation.');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  
   
   
   return (
@@ -119,7 +174,7 @@ const Calculator = () => {
             <Pressable
               key={type}
               onPress={() => setPropertyType(type)}
-              className={`p-4 rounded-lg border text-center w-[30%] ${
+              className={`p-4 rounded-lg border text-a w-[32%] ${
                 propertyType === type ? 'bg-teal-500 text-white' : 'bg-white text-black border-gray-300'
               }`}
             >

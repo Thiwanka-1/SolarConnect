@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, Pressable, Alert, Image } from "react-native";
+import { View, Text, TextInput, Pressable, Alert, Image, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { getUserData, updateUserProfile } from "../lib/appwrite"; // Ensure updateUserProfile is updated
@@ -36,39 +36,36 @@ const UpdateProfile = () => {
 
   return (
     <SafeAreaView className="bg-white flex-1 p-6">
-      {/* Header Section */}
-      <Pressable onPress={() => router.back()}>
-        <Text className="text-lg font-semibold text-gray-700">← Update Profile</Text>
-      </Pressable>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        {/* Profile Logo */}
+        <View className="flex items-center mb-8 mt-4">
+          <Image source={require("../assets/images/logo.png")} className="w-36 h-36" resizeMode="contain" />
+        </View>
 
-      {/* Profile Logo */}
-      <View className="flex items-center mb-8 mt-4">
-        <Image source={require("../assets/images/logo.png")} className="w-36 h-36" resizeMode="contain" />
-      </View>
+        {/* Input Fields */}
+        <View className="mb-4">
+          <Text className="text-lg text-gray-600">Name:</Text>
+          <TextInput
+            value={name}
+            onChangeText={setName}
+            className="border border-gray-300 rounded-md p-3 mt-2"
+          />
+        </View>
 
-      {/* Input Fields */}
-      <View className="mb-4">
-        <Text className="text-lg text-gray-600">Name:</Text>
-        <TextInput
-          value={name}
-          onChangeText={setName}
-          className="border border-gray-300 rounded-md p-3 mt-2"
-        />
-      </View>
+        <View className="mb-4">
+          <Text className="text-lg text-gray-600">Username:</Text>
+          <TextInput
+            value={username}
+            onChangeText={setUsername}
+            className="border border-gray-300 rounded-md p-3 mt-2"
+          />
+        </View>
 
-      <View className="mb-4">
-        <Text className="text-lg text-gray-600">Username:</Text>
-        <TextInput
-          value={username}
-          onChangeText={setUsername}
-          className="border border-gray-300 rounded-md p-3 mt-2"
-        />
-      </View>
-
-      {/* Update Button */}
-      <Pressable className="bg-teal-400 p-4 rounded-lg flex items-center justify-center shadow mt-6" onPress={handleUpdate}>
-        <Text className="text-white font-bold">Update</Text>
-      </Pressable>
+        {/* Update Button */}
+        <Pressable className="bg-teal-400 p-4 rounded-lg flex items-center justify-center shadow mt-6" onPress={handleUpdate}>
+          <Text className="text-white font-bold">Update</Text>
+        </Pressable>
+      </ScrollView>
     </SafeAreaView>
   );
 };

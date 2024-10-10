@@ -3,6 +3,7 @@ import { View, Text, Image, ScrollView, Dimensions, FlatList, Pressable, Alert }
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { getUserData } from "../../lib/appwrite";  // Import the getUserData function
+import { useFocusEffect } from '@react-navigation/native'; // Import useFocusEffect
 
 const { width } = Dimensions.get("window");
 
@@ -12,18 +13,22 @@ const Home = () => {
   const slideRef = useRef(null);
   const router = useRouter();
 
-  // Fetch user data when the component mounts
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const userData = await getUserData();
-        setUser(userData);
-      } catch (error) {
-        Alert.alert("Error", "Unable to fetch user data.");
-      }
-    };
-    fetchUserData();
-  }, []);
+  // Function to fetch user data
+  const fetchUserData = async () => {
+    try {
+      const userData = await getUserData();
+      setUser(userData);
+    } catch (error) {
+      Alert.alert("Error", "Unable to fetch user data.");
+    }
+  };
+
+  // Use useFocusEffect to reload user data when the screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchUserData(); // Fetch user data on screen focus
+    }, [])
+  );
 
   const slides = [
     { id: 1, img: require("../../assets/images/slide1.png") },
@@ -44,18 +49,16 @@ const Home = () => {
         <View className="flex flex-row justify-between items-center p-4">
           <View className="flex flex-row items-center">
             <Image
-              source={require("../../assets/images/logo.png")} // Use require() for the logo
+              source={require("../../assets/images/logo.png")}
               className="w-10 h-10"
               resizeMode="contain"
             />
-            {/* Ensure that the text is wrapped inside the Text component */}
             <Text className="text-xl font-bold text-green-600 ml-2">SolarConnect</Text>
           </View>
-            
           <View className="flex flex-row items-center">
             <Pressable onPress={() => router.push('/profile')}> 
               <Image
-                source={require("../../assets/images/user.png")} // Use require() for the profile picture
+                source={require("../../assets/images/user.png")}
                 className="w-12 h-12 rounded-full ml-4"
                 resizeMode="cover"
               />
@@ -98,7 +101,7 @@ const Home = () => {
 
         <View className="mt-4">
             <Image
-              source={require("../../assets/images/ab.png")} // Add this image to your assets
+              source={require("../../assets/images/ab.png")}
               className="w-screen h-40"
               resizeMode="cover"
             />
@@ -110,13 +113,13 @@ const Home = () => {
             Why switch to solar power
           </Text>
           <Text className="text-base text-center text-gray-600 mt-2">
-          Sri Lanka is one of the most expensive energy markets in the world. The use of solar can significantly reduce or eliminate your electricity bill as well as ensure an uninterrupted power supply. The average payback on solar power in Sri Lanka is 5 years. After this payback period, you are earning money on your roof.
+            Sri Lanka is one of the most expensive energy markets in the world. The use of solar can significantly reduce or eliminate your electricity bill as well as ensure an uninterrupted power supply. The average payback on solar power in Sri Lanka is 5 years. After this payback period, you are earning money on your roof.
           </Text>
         </View>
 
         <View className="mt-4">
             <Image
-              source={require("../../assets/images/sb.png")} // Add this image to your assets
+              source={require("../../assets/images/sb.png")}
               className="w-screen h-48"
               resizeMode="cover"
             />
@@ -131,7 +134,7 @@ const Home = () => {
           {/* Net Metering */}
           <View className="mt-4">
             <Image
-              source={require("../../assets/images/nm.png")} // Add the image to your assets folder
+              source={require("../../assets/images/nm.png")}
               className="w-full h-96"
               resizeMode="contain"
             />
@@ -140,7 +143,7 @@ const Home = () => {
           {/* Net Accounting */}
           <View className="mt-4">
             <Image
-              source={require("../../assets/images/na.png")} // Add the image to your assets folder
+              source={require("../../assets/images/na.png")}
               className="w-full h-96"
               resizeMode="contain"
             />
@@ -149,7 +152,7 @@ const Home = () => {
           {/* Net Plus */}
           <View className="mt-4">
             <Image
-              source={require("../../assets/images/np.png")} // Add the image to your assets folder
+              source={require("../../assets/images/np.png")}
               className="w-full h-96"
               resizeMode="contain"
             />
