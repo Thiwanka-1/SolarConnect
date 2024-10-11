@@ -126,7 +126,7 @@ const Settings = () => {
 
           <Pressable
             className="bg-white border border-gray-200 p-4 rounded-lg mb-4 flex flex-row justify-between items-center shadow"
-            onPress={() => router.push("/local-intensives-finder")}
+            onPress={() => router.push("/localIncentiveFinder")}
           >
             <View className="flex flex-row items-center">
               <Image
