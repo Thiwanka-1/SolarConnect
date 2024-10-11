@@ -151,6 +151,19 @@ const Settings = () => {
             </View>
             <Text className="text-lg">{">"}</Text>
           </Pressable>
+          <Pressable
+            className="bg-white border border-gray-200 p-4 rounded-lg mb-4 flex flex-row justify-between items-center shadow"
+            onPress={() => router.push("/orders")}
+          >
+            <View className="flex flex-row items-center">
+              <Image
+                source={require("../../assets/images/order.png")}
+                className="w-8 h-8 mr-3"
+              />
+              <Text className="text-lg">My Orders</Text>
+            </View>
+            <Text className="text-lg">{">"}</Text>
+          </Pressable>
         </View>
 
         {/* Log Out Button */}
