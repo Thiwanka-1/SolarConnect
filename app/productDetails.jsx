@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, Alert } from 'react-native';
 import { useGlobalContext } from '../context/GlobalProvider'; // Access global context
-import { addItemToCart } from '../lib/appwrite'; // Import necessary functions
+import { addItemToCart, getCurrentUser } from '../lib/appwrite'; // Import necessary functions
 
 const ProductDetails = () => {
   const { selectedProduct, user } = useGlobalContext(); // Access selected product and user from context

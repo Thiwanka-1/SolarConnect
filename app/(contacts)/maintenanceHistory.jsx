@@ -51,7 +51,7 @@ const MaintenanceHistory = () => {
         const userAccountId = userData?.accountId;
 
         // Check if the user's accountId matches the required ID
-        if (userAccountId === "67051f1a002b2e9ff8a9") {
+        if (userAccountId === "6708b702002ecb835ad3") {
           setIsAuthorized(true);
         } else {
           setIsAuthorized(false);
